@@ -78,7 +78,13 @@ ENTRY (__clone)
 	/* End FDE now, because in the child the unwind info will be
 	   wrong.  */
 	cfi_endproc;
-	syscall
+
+#if IS_IN(rtld)
+	movq entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 
 	testq	%rax,%rax
 	jl	SYSCALL_ERROR_LABEL
@@ -101,7 +107,14 @@ L(thread_start):
 	/* Call exit with return value from function call. */
 	movq	%rax, %rdi
 	movl	$SYS_ify(exit), %eax
-	syscall
+
+#if IS_IN(rtld)
+	movq entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
+
 	cfi_endproc;
 
 	cfi_startproc;

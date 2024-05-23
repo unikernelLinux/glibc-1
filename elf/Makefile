@@ -1348,7 +1348,8 @@ $(objpfx)ld.so: $(objpfx)librtld.os $(ld-map)
 		  $(LDFLAGS-rtld) -Wl,-z,defs $(z-now-$(bind-now))	\
 		  $(dt-relr-ldflag) \
 		  $(filter-out $(map-file),$^) $(load-map-file)		\
-		  -Wl,-soname=$(rtld-installed-name)
+		  -Wl,-soname=$(rtld-installed-name) \
+		  $(common-objpfx)../entry-patch.o
 	$(call after-link,$@.new)
 	$(READELF) -s $@.new \
 	  | $(AWK) '($$7 ~ /^UND(|EF)$$/ && $$1 != "0:" && $$4 != "REGISTER") { print; p=1 } END { exit p != 0 }'

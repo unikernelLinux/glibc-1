@@ -34,7 +34,14 @@ ENTRY (syscall)
 	movq %r8, %r10
 	movq %r9, %r8
 	movq 8(%rsp),%r9	/* arg6 is on the stack.  */
-	syscall			/* Do the system call.  */
+
+#if IS_IN(rtld)			/* Do the system call */
+	movq entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
+
 	cmpq $-4095, %rax	/* Check %rax for error.  */
 	jae SYSCALL_ERROR_LABEL	/* Jump to error handler if error.  */
 	ret			/* Return to caller.  */

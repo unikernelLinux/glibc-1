@@ -512,6 +512,7 @@ _dl_start_final (void *arg, struct dl_start_final_info *info)
 # define bootstrap_map info.l
 #endif
 
+
 static ElfW(Addr) __attribute_used__
 _dl_start (void *arg)
 {

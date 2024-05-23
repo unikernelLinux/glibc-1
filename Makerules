@@ -543,12 +543,13 @@ $(LINK.o) -shared -static-libgcc -Wl,-O1 $(sysdep-LDFLAGS) \
 	  $(extra-B-$(@F:lib%.so=%).so) $(load-map-file) \
 	  -Wl,-soname=lib$(libprefix)$(@F:lib%.so=%).so$($(@F)-version) \
 	  $(LDFLAGS.so) $(LDFLAGS-lib.so) $(LDFLAGS-$(@F:lib%.so=%).so) \
-	  -L$(subst :, -L,$(rpath-link)) -Wl,-rpath-link=$(rpath-link)
+	  -L$(subst :, -L,$(rpath-link)) -L$(common-objpfx).. -Wl,-rpath-link=$(rpath-link):$(common-objpfx).. \
+	  -Wl,-rpath=$(common-objpfx)..
 endef
 
 define build-shlib
 $(build-shlib-helper) -o $@ \
-	  $(csu-objpfx)abi-note.o $(build-shlib-objlist)
+	  $(csu-objpfx)abi-note.o $(build-shlib-objlist) -luklsyms
 endef
 
 define build-module-helper
