@@ -1,5 +1,5 @@
 #!/bin/sh
-
+set -x
 # Usage: make-syscalls.sh ../sysdeps/unix/common
 # Expects $sysdirs in environment.
 

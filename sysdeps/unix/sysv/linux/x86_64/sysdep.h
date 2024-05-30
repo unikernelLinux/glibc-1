@@ -232,17 +232,19 @@
 
 
 #if IS_IN(rtld)
-#define syscall_method "movq entry_SYSCALL_64(%%rip),%%rcx\n\tcall *%%rcx"
+#define syscall_method "movq _dl_entry_SYSCALL_64(%%rip),%%rcx\n\tcall *%%rcx"
 #else
 #define syscall_method "call entry_SYSCALL_64@PLT\n\t"
 #endif
 
 
-#ifdef UKL_BP
+#if defined(UKL_BP) && !IS_IN(rtld)
+
+long get_bypass_syscall(void);
 
 #undef INTERNAL_SYSCALL
 #define INTERNAL_SYSCALL(name, nr, args...)			\
-	internal_syscall##nr (name, SYS_ify (name), args);
+	internal_syscall##nr (name, SYS_ify (name), args)
 
 #undef INTERNAL_SYSCALL_NCS
 #define INTERNAL_SYSCALL_NCS(number, nr, args...)			\

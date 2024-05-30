@@ -36,7 +36,7 @@ ENTRY (syscall)
 	movq 8(%rsp),%r9	/* arg6 is on the stack.  */
 
 #if IS_IN(rtld)			/* Do the system call */
-	movq entry_SYSCALL_64(%rip), %rcx
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
 	call *%rcx
 #else
 	call entry_SYSCALL_64@PLT

@@ -1,0 +1,271 @@
+cscope 15 $HOME/ukl/ukl/glibc -q 0000000041 0000001494
+	@test-skeleton.c
+
+26 
+	~<as£¹.h
+>
+
+27 
+	~<”ºo.h
+>
+
+28 
+	~<fúŽ.h
+>
+
+29 
+	~<g‘Ýt.h
+>
+
+30 
+	~<m®loc.h
+>
+
+31 
+	~<·ths.h
+>
+
+32 
+	~<£¬ch.h
+>
+
+33 
+	~<sigÇl.h
+>
+
+34 
+	~<¡dio.h
+>
+
+35 
+	~<¡dlib.h
+>
+
+36 
+	~<¡ršg.h
+>
+
+37 
+	~<uni¡d.h
+>
+
+38 
+	~<sys/»sourû.h
+>
+
+39 
+	~<sys/wa™.h
+>
+
+40 
+	~<sys/·¿m.h
+>
+
+41 
+	~<time.h
+>
+
+42 
+	~<¡dšt.h
+>
+
+44 
+	~<suµÜt/suµÜt.h
+>
+
+45 
+	~<suµÜt/check.h
+>
+
+46 
+	~<suµÜt/xsigÇl.h
+>
+
+47 
+	~<suµÜt/‹mp_fže.h
+>
+
+51 
+Ëgacy_‹¡_funùiÚ
+ (
+¬gc
+ 
+__©Œibu‹__
+ ((
+unu£d
+)),
+
+52 **
+¬gv
+ 
+__©Œibu‹__
+ ((
+unu£d
+)))
+
+54 #ifdeà
+TEST_FUNCTION
+
+
+55  
+	gTEST_FUNCTION
+;
+
+56 #undeà
+TEST_FUNCTION
+
+
+58  
+do_‹¡
+ (
+¬gc
+, 
+¬gv
+);
+
+61 
+	#TEST_FUNCTION_ARGV
+ 
+Ëgacy_‹¡_funùiÚ
+
+
+	)
+
+64 #ifdeà
+PREPARE
+
+
+66 
+Ëgacy_´•¬e_funùiÚ
+ (
+¬gc
+ 
+__©Œibu‹__
+ ((
+unu£d
+)),
+
+67 **
+¬gv
+ 
+__©Œibu‹__
+ ((
+unu£d
+)))
+
+69 
+PREPARE
+ (
+¬gc
+, 
+¬gv
+);
+
+71 #undeà
+PREPARE
+
+
+72 
+	#PREPARE
+ 
+Ëgacy_´•¬e_funùiÚ
+
+
+	)
+
+76 #ifdeà
+CLEANUP_HANDLER
+
+
+78 
+	$Ëgacy_þ—nup_hªdËr_funùiÚ
+ ()
+
+80 
+CLEANUP_HANDLER
+;
+
+81 
+	}
+}
+
+82 #undeà
+CLEANUP_HANDLER
+
+
+83 
+	#CLEANUP_HANDLER
+ 
+Ëgacy_þ—nup_hªdËr_funùiÚ
+
+
+	)
+
+87 #ifdeà
+CMDLINE_PROCESS
+
+
+89 
+	$Ëgacy_cmdlše_´oûss_funùiÚ
+ (
+c
+)
+
+91 
+c
+)
+
+93 
+CMDLINE_PROCESS
+
+
+95 
+	}
+}
+
+96 #undeà
+CMDLINE_PROCESS
+
+
+97 
+	#CMDLINE_PROCESS
+ 
+Ëgacy_cmdlše_´oûss_funùiÚ
+
+
+	)
+
+101 
+	~<suµÜt/‹¡-driv”.c
+>
+
+105 #ifdeà
+_PTHREAD_H
+
+
+106 
+	~<suµÜt/xth»ad.h
+>
+
+	@version.h
+
+3 
+	#RELEASE
+ "dev–Ým’t"
+
+	)
+
+4 
+	#VERSION
+ "2.39.9000"
+
+	)
+
+	@
+1
+.
+0
+2
+26
+test-skeleton.c
+version.h

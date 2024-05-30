@@ -512,10 +512,23 @@ _dl_start_final (void *arg, struct dl_start_final_info *info)
 # define bootstrap_map info.l
 #endif
 
+void *_dl_entry_SYSCALL_64 attribute_hidden;
 
 static ElfW(Addr) __attribute_used__
 _dl_start (void *arg)
 {
+  // UKL kernel will initialize %r15 to &ukl_entry_SYSCALL_64 (the UKL application's entry point
+  // for the kernel).
+  //
+  // initialize _dl_entry_SYSCALL_64 so UKL application ld.so can make syscalls
+  // Intentionally don't inform compiler that $r15 is clobbered b/c I assume ld.so expects
+  // $r15 to be initialized to 0.
+  asm volatile(
+    "movq %%r15, _dl_entry_SYSCALL_64(%%rip)\n\t"
+    "xorq %%r15, %%r15\n\t"
+    ::: "memory" 
+  );
+
 #ifdef DONT_USE_BOOTSTRAP_MAP
   rtld_timer_start (&start_time);
 #else

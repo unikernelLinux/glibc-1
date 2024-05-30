@@ -80,7 +80,7 @@ ENTRY (__clone)
 	cfi_endproc;
 
 #if IS_IN(rtld)
-	movq entry_SYSCALL_64(%rip), %rcx
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
 	call *%rcx
 #else
 	call entry_SYSCALL_64@PLT
@@ -109,7 +109,7 @@ L(thread_start):
 	movl	$SYS_ify(exit), %eax
 
 #if IS_IN(rtld)
-	movq entry_SYSCALL_64(%rip), %rcx
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
 	call *%rcx
 #else
 	call entry_SYSCALL_64@PLT
