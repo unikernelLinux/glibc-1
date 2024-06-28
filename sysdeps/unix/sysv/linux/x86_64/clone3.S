@@ -48,7 +48,12 @@ ENTRY (__clone3)
 	jz	SYSCALL_ERROR_LABEL
 
 	/* Save the cl_args pointer in R8 which is preserved by the
-	   syscall.  */
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif.  */
 	mov	%RCX_LP, %R8_LP
 
 	/* Do the system call.  */
@@ -57,7 +62,12 @@ ENTRY (__clone3)
 	/* End FDE now, because in the child the unwind info will be
 	   wrong.  */
 	cfi_endproc
-	syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 
 	test	%RAX_LP, %RAX_LP
 	jl	SYSCALL_ERROR_LABEL
@@ -79,7 +89,12 @@ L(thread_start):
 	/* Call exit with return value from function call. */
 	movq	%rax, %rdi
 	movl	$SYS_ify(exit), %eax
-	syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 	cfi_endproc
 
 	cfi_startproc

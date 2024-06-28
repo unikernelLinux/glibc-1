@@ -28,7 +28,12 @@
 
 ENTRY(__mips_syscall6)
 	lw	v0, 24(sp)
-	syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 	move	v1, a3
 	jr	ra
 END(__mips_syscall6)

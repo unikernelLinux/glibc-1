@@ -54,7 +54,7 @@ ENTRY(__longjmp)
 # endif
 #endif
 
-	CHECK_INVALID_LONGJMP
+// UKL DISABLE:	CHECK_INVALID_LONGJMP
 
 #ifdef SHADOW_STACK_POINTER_OFFSET
 # if IS_IN (libc) && defined SHARED && defined FEATURE_1_OFFSET

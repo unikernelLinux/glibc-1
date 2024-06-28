@@ -90,7 +90,12 @@ NESTED(__clone,4*SZREG,sp)
 	/* Do the system call */
 	li		v0,__NR_clone
 	cfi_endproc
-	syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 
 	bnez		a3,L(error)
 	beqz		v0,L(thread_start)
@@ -142,7 +147,12 @@ L(thread_start):
 
 	move		a0,v0
 	li		v0,__NR_exit
-	syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 
 	END(__thread_start)
 

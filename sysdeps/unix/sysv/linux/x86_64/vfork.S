@@ -35,7 +35,12 @@ ENTRY (__vfork)
 
 	/* Stuff the syscall number in RAX and enter into the kernel.  */
 	movl	$SYS_ify (vfork), %eax
-	syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 
 	/* Push back the return PC.  */
 	pushq	%rdi

@@ -76,7 +76,12 @@ ENTRY(__swapcontext)
 	movl	$SIG_SETMASK, %edi
 	movl	$_NSIG8,%r10d
 	movl	$__NR_rt_sigprocmask, %eax
-	syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 	cmpq	$-4095, %rax		/* Check %rax for error.  */
 	jae	SYSCALL_ERROR_LABEL	/* Jump to error handler if error.  */
 

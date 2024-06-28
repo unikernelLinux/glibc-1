@@ -52,7 +52,12 @@ LEAF (__swapcontext)
 	li.d		a0, SIG_SETMASK
 
 	li.d		a7, SYS_ify (rt_sigprocmask)
-	syscall		0
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif		0
 
 	blt		a0, zero, 99f
 

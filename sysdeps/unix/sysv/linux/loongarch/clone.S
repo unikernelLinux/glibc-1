@@ -51,7 +51,12 @@ ENTRY (__clone)
 
 	/* Do the system call.  */
 	LI		a7,__NR_clone
-	syscall		0
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif		0
 
 	blt		a0, zero ,L (error)
 	beqz		a0,L (thread_start)
@@ -88,7 +93,12 @@ L (thread_start):
 
 	/* Call exit with the function's return value.  */
 	LI		a7, __NR_exit
-	syscall		0
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif		0
 
 	END (__thread_start)
 

@@ -64,7 +64,12 @@ NESTED(__libc_vfork,FRAMESZ,sp)
 
 	/* Do the system call */
 	li		v0,__NR_clone
-	syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 
 	cfi_remember_state
 	bnez		a3,L(error)

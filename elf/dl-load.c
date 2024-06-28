@@ -951,6 +951,7 @@ _dl_map_object_from_fd (const char *name, const char *origname, int fd,
   const char *errstring = NULL;
   int errval = 0;
 
+  _dl_debug_printf ("Inside _dl_map_object_from_fd\n");
   /* Get file information.  To match the kernel behavior, do not fill
      in this information for the executable in case of an explicit
      loader invocation.  */

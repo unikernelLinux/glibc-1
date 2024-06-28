@@ -125,7 +125,12 @@ NESTED (__getcontext, FRAMESZ, ra)
 	li	a0, SIG_BLOCK
 
 	li	v0, SYS_ify (rt_sigprocmask)
-	syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 	bnez	a3, 99f
 	cfi_remember_state
 

@@ -26,7 +26,12 @@
 ENTRY (__ioctl)
 	sll a1, a1, 0
 	li v0, __NR_ioctl
-	syscall			/* Do the system call.  */
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif			/* Do the system call.  */
 	bne a3, zero, L(error)
 	ret
 

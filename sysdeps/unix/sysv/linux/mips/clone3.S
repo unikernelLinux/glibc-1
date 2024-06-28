@@ -95,7 +95,12 @@ NESTED(__clone3, SZREG, sp)
 	   a1: size  */
 	li		v0, __NR_clone3
 	cfi_endproc
-	syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 
 	bnez		a3, L(error)
 	beqz		v0, L(thread_start_clone3)
@@ -154,7 +159,12 @@ L(thread_start_clone3):
 
 	move		a0, v0
 	li		v0, __NR_exit
-	syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 END(__thread_start_clone3)
 
 libc_hidden_def (__clone3)

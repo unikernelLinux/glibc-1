@@ -44,7 +44,12 @@ NESTED (syscall, SZREG, ra)
 	move a6, a7
 
 	move v0, s0		/* Syscall number -> v0 */
-	syscall			/* Do the system call.  */
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif			/* Do the system call.  */
 
 	REG_L s0, (sp)
 	cfi_restore (s0)
