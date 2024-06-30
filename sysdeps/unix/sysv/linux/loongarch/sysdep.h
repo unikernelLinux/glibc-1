@@ -75,7 +75,12 @@
 #define PSEUDO_NOERRNO(name, syscall_name, args) \
   ENTRY (name); \
   li.d a7, SYS_ify (syscall_name); \
-  syscall 0;
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 
 #undef PSEUDO_END_NOERRNO
 #define PSEUDO_END_NOERRNO(name) END (name);

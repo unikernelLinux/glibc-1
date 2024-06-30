@@ -26,7 +26,12 @@
     TYPEFY (arg1, __arg1) = ARGIFY (arg1);			 	\
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     asm volatile (							\
-    "syscall\n\t"							\
+#if IS_IN(rtld) \
+	"movq _dl_entry_SYSCALL_64(%rip), %rcx" \
+	"call *%rcx" \
+#else \
+	"call entry_SYSCALL_64@PLT" \
+#endif \
     : "=a" (resultvar)							\
     : "0" (number), "r" (_a1)						\
     : "memory", REGISTERS_CLOBBERED_BY_SYSCALL);			\

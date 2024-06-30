@@ -25,7 +25,12 @@
 
 #define DO_CALL(syscall_name, args)					      \
   lea SYS_ify (syscall_name), %rax;					      \
-  syscall
+#if IS_IN(rtld) \
+	movq _dl_entry_SYSCALL_64(%rip), %rcx \
+	call *%rcx \
+#else \
+	call entry_SYSCALL_64@PLT \
+#endif
 
 #define	r0		%rax	/* Normal return-value register.  */
 #define	r1		%rbx	/* Secondary return-value register.  */

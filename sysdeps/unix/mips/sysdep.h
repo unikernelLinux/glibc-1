@@ -50,7 +50,12 @@
   .set nomips16;					\
   .set noreorder;					\
   li v0, SYS_ify(syscall_name);				\
-  syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 
 #undef PSEUDO_END_NOERRNO
 #define PSEUDO_END_NOERRNO(sym) cfi_endproc; .end sym; .size sym,.-sym
@@ -63,7 +68,12 @@
   .set nomips16;					\
   .set noreorder;					\
   li v0, SYS_ify(syscall_name);				\
-  syscall
+#if IS_IN(rtld)
+	movq _dl_entry_SYSCALL_64(%rip), %rcx
+	call *%rcx
+#else
+	call entry_SYSCALL_64@PLT
+#endif
 
 #undef PSEUDO_END_ERRVAL
 #define PSEUDO_END_ERRVAL(sym) cfi_endproc; .end sym; .size sym,.-sym

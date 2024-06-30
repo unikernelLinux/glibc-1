@@ -197,7 +197,12 @@
     ZERO_EXTEND_##ulong_arg_1			\
     ZERO_EXTEND_##ulong_arg_2			\
     movl $SYS_ify (syscall_name), %eax;		\
-    syscall;
+#if IS_IN(rtld) \
+	movq _dl_entry_SYSCALL_64(%rip), %rcx \
+	call *%rcx \
+#else \
+	call entry_SYSCALL_64@PLT \
+#endif
 
 # define DOARGS_0 /* nothing */
 # define DOARGS_1 /* nothing */
