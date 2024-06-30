@@ -79,12 +79,7 @@ ENTRY (__clone)
 	   wrong.  */
 	cfi_endproc;
 
-#if IS_IN(rtld)
-	movq _dl_entry_SYSCALL_64(%rip), %rcx
-	call *%rcx
-#else
-	call entry_SYSCALL_64@PLT
-#endif
+	syscall_method
 
 	testq	%rax,%rax
 	jl	SYSCALL_ERROR_LABEL
@@ -107,13 +102,8 @@ L(thread_start):
 	/* Call exit with return value from function call. */
 	movq	%rax, %rdi
 	movl	$SYS_ify(exit), %eax
-
-#if IS_IN(rtld)
-	movq _dl_entry_SYSCALL_64(%rip), %rcx
-	call *%rcx
-#else
-	call entry_SYSCALL_64@PLT
-#endif
+	
+	syscall_method
 
 	cfi_endproc;
 

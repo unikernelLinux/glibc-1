@@ -26,6 +26,44 @@
 /* Defines RTLD_PRIVATE_ERRNO.  */
 #include <dl-sysdep.h>
 
+/*
+ * Unikernel Linux requires that we NOT execute the syscall instruction
+ * and instead call the entry point directly (entry_SYSCALL_64).
+ *
+ * All objects in ld.so must make an indirect call to _dl_entry_SYSCALL_64, 
+ * which ld.so populates at the beginning of _dl_start
+ *
+ * All other objects must call entry_SYSCALL_64@PLT. A shared object called
+ * libuklsyms.so will contain the value of entry_SYSCALL_64, which ld.so
+ * uses to perform the runtime relocation.
+ *
+ * asmv_syscall_method: used in inline asm volatie blocks
+ * asm_syscall_method: used in inline asm blocks
+ * syscall_method_scln: used in .S files that terminate lines with semicolons
+ * syscall_method: used in .S files
+ */
+#if IS_IN(rtld)
+#define asmv_syscall_method \
+	"movq _dl_entry_SYSCALL_64(%%rip),%%rcx\n\t" "call *%%rcx"
+#define asm_syscall_method \
+	"	movq _dl_entry_SYSCALL_64(%rip), %rcx\n" "	call *%rcx\n"
+#define syscall_method_scln \
+	movq _dl_entry_SYSCALL_64(%rip), %rcx; \
+	call *%rcx
+#define syscall_method \
+	movq _dl_entry_SYSCALL_64(%rip), %rcx \
+	call *%rcx
+#else
+#define asmv_syscall_method \
+	"call entry_SYSCALL_64@PLT\n\t"
+#define asm_syscall_method \
+	"	call entry_SYSCALL_64@PLT\n"
+#define syscall_method_scln \
+	call entry_SYSCALL_64@PLT
+#define syscall_method \
+	call entry_SYSCALL_64@PLT
+#endif
+
 /* For Linux we can use the system call table in the header file
 	/usr/include/asm/unistd.h
    of the kernel.  But these symbols do not follow the SYS_* syntax
@@ -197,7 +235,7 @@
     ZERO_EXTEND_##ulong_arg_1			\
     ZERO_EXTEND_##ulong_arg_2			\
     movl $SYS_ify (syscall_name), %eax;		\
-    syscall;
+    syscall_method_scln
 
 # define DOARGS_0 /* nothing */
 # define DOARGS_1 /* nothing */
@@ -231,13 +269,6 @@
 #define TYPEFY(X, name) __typeof__ (ARGIFY (X)) name
 
 
-#if IS_IN(rtld)
-#define syscall_method "movq _dl_entry_SYSCALL_64(%%rip),%%rcx\n\tcall *%%rcx"
-#else
-#define syscall_method "call entry_SYSCALL_64@PLT\n\t"
-#endif
-
-
 #if defined(UKL_BP) && !IS_IN(rtld)
 
 long get_bypass_syscall(void);
@@ -259,7 +290,7 @@ long get_bypass_syscall(void);
 	resultvar = bp_##name();					\
     } else {								\
     	asm volatile (							\
-    	syscall_method \
+    	asmv_syscall_method \
 	: "=a" (resultvar)						\
     	: "0" (number)							\
     	: "memory", REGISTERS_CLOBBERED_BY_SYSCALL);			\
@@ -278,7 +309,7 @@ long get_bypass_syscall(void);
     } else {								\
     	register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     	asm volatile (							\
-    	syscall_method \
+    	asmv_syscall_method \
 	: "=a" (resultvar)							\
     	: "0" (number), "r" (_a1)						\
     	: "memory", REGISTERS_CLOBBERED_BY_SYSCALL);			\
@@ -299,7 +330,7 @@ long get_bypass_syscall(void);
     	register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;			\
     	register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     	asm volatile (							\
-    	syscall_method \
+    	asmv_syscall_method \
 	: "=a" (resultvar)							\
     	: "0" (number), "r" (_a1), "r" (_a2)				\
     	: "memory", REGISTERS_CLOBBERED_BY_SYSCALL);			\
@@ -322,7 +353,7 @@ long get_bypass_syscall(void);
     	register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;			\
     	register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     	asm volatile (							\
-    	syscall_method	\
+    	asmv_syscall_method	\
 	: "=a" (resultvar)							\
     	: "0" (number), "r" (_a1), "r" (_a2), "r" (_a3)			\
     	: "memory", REGISTERS_CLOBBERED_BY_SYSCALL);			\
@@ -347,7 +378,7 @@ long get_bypass_syscall(void);
     	register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;			\
     	register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     	asm volatile (							\
-    	syscall_method							\
+    	asmv_syscall_method							\
     	: "=a" (resultvar)							\
     	: "0" (number), "r" (_a1), "r" (_a2), "r" (_a3), "r" (_a4)		\
     	: "memory", REGISTERS_CLOBBERED_BY_SYSCALL);			\
@@ -374,7 +405,7 @@ long get_bypass_syscall(void);
     	register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;			\
     	register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     	asm volatile (							\
-    	syscall_method							\
+    	asmv_syscall_method							\
     	: "=a" (resultvar)							\
     	: "0" (number), "r" (_a1), "r" (_a2), "r" (_a3), "r" (_a4),		\
       	"r" (_a5)								\
@@ -404,7 +435,7 @@ long get_bypass_syscall(void);
     	register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;			\
     	register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     	asm volatile (							\
-    	syscall_method							\
+    	asmv_syscall_method							\
     	: "=a" (resultvar)							\
     	: "0" (number), "r" (_a1), "r" (_a2), "r" (_a3), "r" (_a4),		\
     	  "r" (_a5), "r" (_a6)						\
@@ -426,7 +457,7 @@ long get_bypass_syscall(void);
 ({                                                                      \
     unsigned long int resultvar;                                        \
     asm volatile (                                                      \
-    syscall_method                                                     \
+    asmv_syscall_method                                                     \
     : "=a" (resultvar)                                                  \
     : "0" (number)                                                      \
     : "memory", REGISTERS_CLOBBERED_BY_SYSCALL);                        \
@@ -440,7 +471,7 @@ long get_bypass_syscall(void);
     TYPEFY (arg1, __arg1) = ARGIFY (arg1);                              \
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;                   \
     asm volatile (                                                      \
-    syscall_method                                                     \
+    asmv_syscall_method                                                     \
     : "=a" (resultvar)                                                  \
     : "0" (number), "r" (_a1)                                           \
     : "memory", REGISTERS_CLOBBERED_BY_SYSCALL);                        \
@@ -456,7 +487,7 @@ long get_bypass_syscall(void);
     register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;                   \
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;                   \
     asm volatile (                                                      \
-    syscall_method                                                     \
+    asmv_syscall_method                                                     \
     : "=a" (resultvar)                                                  \
     : "0" (number), "r" (_a1), "r" (_a2)                                \
     : "memory", REGISTERS_CLOBBERED_BY_SYSCALL);                        \
@@ -474,7 +505,7 @@ long get_bypass_syscall(void);
     register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;                   \
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;                   \
     asm volatile (                                                      \
-    syscall_method                                                     \
+    asmv_syscall_method                                                     \
     : "=a" (resultvar)                                                  \
     : "0" (number), "r" (_a1), "r" (_a2), "r" (_a3)                     \
     : "memory", REGISTERS_CLOBBERED_BY_SYSCALL);                        \
@@ -494,7 +525,7 @@ long get_bypass_syscall(void);
     register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;                   \
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;                   \
     asm volatile (                                                      \
-    syscall_method                                                     \
+    asmv_syscall_method                                                     \
     : "=a" (resultvar)                                                  \
     : "0" (number), "r" (_a1), "r" (_a2), "r" (_a3), "r" (_a4)          \
     : "memory", REGISTERS_CLOBBERED_BY_SYSCALL);                        \
@@ -516,7 +547,7 @@ long get_bypass_syscall(void);
     register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;                   \
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;                   \
     asm volatile (                                                      \
-    syscall_method                                                     \
+    asmv_syscall_method                                                     \
     : "=a" (resultvar)                                                  \
     : "0" (number), "r" (_a1), "r" (_a2), "r" (_a3), "r" (_a4),         \
       "r" (_a5)                                                         \
@@ -541,7 +572,7 @@ long get_bypass_syscall(void);
     register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;                   \
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;                   \
     asm volatile (                                                      \
-    syscall_method                                                     \
+    asmv_syscall_method                                                     \
     : "=a" (resultvar)                                                  \
     : "0" (number), "r" (_a1), "r" (_a2), "r" (_a3), "r" (_a4),         \
       "r" (_a5), "r" (_a6)                                              \
@@ -556,7 +587,7 @@ long get_bypass_syscall(void);
 ({									\
     unsigned long int resultvar;					\
     asm volatile (							\
-    syscall_method							\
+    asmv_syscall_method							\
     : "=a" (resultvar)							\
     : "0" (number)							\
     : "memory", REGISTERS_CLOBBERED_BY_SYSCALL);			\
@@ -570,7 +601,7 @@ long get_bypass_syscall(void);
     TYPEFY (arg1, __arg1) = ARGIFY (arg1);			 	\
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     asm volatile (							\
-    syscall_method							\
+    asmv_syscall_method							\
     : "=a" (resultvar)							\
     : "0" (number), "r" (_a1)						\
     : "memory", REGISTERS_CLOBBERED_BY_SYSCALL);			\
@@ -586,7 +617,7 @@ long get_bypass_syscall(void);
     register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;			\
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     asm volatile (							\
-    syscall_method							\
+    asmv_syscall_method							\
     : "=a" (resultvar)							\
     : "0" (number), "r" (_a1), "r" (_a2)				\
     : "memory", REGISTERS_CLOBBERED_BY_SYSCALL);			\
@@ -604,7 +635,7 @@ long get_bypass_syscall(void);
     register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;			\
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     asm volatile (							\
-    syscall_method							\
+    asmv_syscall_method							\
     : "=a" (resultvar)							\
     : "0" (number), "r" (_a1), "r" (_a2), "r" (_a3)			\
     : "memory", REGISTERS_CLOBBERED_BY_SYSCALL);			\
@@ -624,7 +655,7 @@ long get_bypass_syscall(void);
     register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;			\
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     asm volatile (							\
-    syscall_method							\
+    asmv_syscall_method							\
     : "=a" (resultvar)							\
     : "0" (number), "r" (_a1), "r" (_a2), "r" (_a3), "r" (_a4)		\
     : "memory", REGISTERS_CLOBBERED_BY_SYSCALL);			\
@@ -646,7 +677,7 @@ long get_bypass_syscall(void);
     register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;			\
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     asm volatile (							\
-    syscall_method							\
+    asmv_syscall_method							\
     : "=a" (resultvar)							\
     : "0" (number), "r" (_a1), "r" (_a2), "r" (_a3), "r" (_a4),		\
       "r" (_a5)								\
@@ -671,7 +702,7 @@ long get_bypass_syscall(void);
     register TYPEFY (arg2, _a2) asm ("rsi") = __arg2;			\
     register TYPEFY (arg1, _a1) asm ("rdi") = __arg1;			\
     asm volatile (							\
-    syscall_method							\
+    asmv_syscall_method							\
     : "=a" (resultvar)							\
     : "0" (number), "r" (_a1), "r" (_a2), "r" (_a3), "r" (_a4),		\
       "r" (_a5), "r" (_a6)						\
