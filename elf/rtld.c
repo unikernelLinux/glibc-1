@@ -512,9 +512,20 @@ _dl_start_final (void *arg, struct dl_start_final_info *info)
 # define bootstrap_map info.l
 #endif
 
+void *_dl_entry_SYSCALL_64 attribute_hidden;
+
 static ElfW(Addr) __attribute_used__
 _dl_start (void *arg)
 {
+  /* See definition of syscall_method in sysdep.h 
+   * The UKL kernel has initialized $r15 to entry_SYSCALL_64
+   */
+  asm volatile(
+    "movq %%r15, _dl_entry_SYSCALL_64(%%rip)\n\t"
+    "xorq %%r15, %%r15\n\t"
+    ::: "memory" 
+  );
+
 #ifdef DONT_USE_BOOTSTRAP_MAP
   rtld_timer_start (&start_time);
 #else
