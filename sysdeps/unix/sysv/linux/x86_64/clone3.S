@@ -57,7 +57,7 @@ ENTRY (__clone3)
 	/* End FDE now, because in the child the unwind info will be
 	   wrong.  */
 	cfi_endproc
-	syscall
+	syscall_method
 
 	test	%RAX_LP, %RAX_LP
 	jl	SYSCALL_ERROR_LABEL
@@ -79,7 +79,7 @@ L(thread_start):
 	/* Call exit with return value from function call. */
 	movq	%rax, %rdi
 	movl	$SYS_ify(exit), %eax
-	syscall
+	syscall_method
 	cfi_endproc
 
 	cfi_startproc

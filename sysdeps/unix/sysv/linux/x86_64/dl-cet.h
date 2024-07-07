@@ -77,6 +77,17 @@ dl_cet_ibt_enabled (void)
 /* Enable shadow stack before calling _dl_init if it is enabled in
    GL(dl_x86_feature_1).  Call _dl_setup_x86_features to setup shadow
    stack.  */
+
+/* See definition of syscall_method in sysdep.h */
+#if IS_IN(rtld)
+#define syscall_method \
+	movq _dl_entry_SYSCALL_64(%rip), %rcx\n\
+	call *%rcx
+#else
+#define syscall_method \
+	call entry_SYSCALL_64@PLT
+#endif
+
 #define RTLD_START_ENABLE_X86_FEATURES \
 "\
 	# Check if shadow stack is enabled in GL(dl_x86_feature_1).\n\
@@ -87,7 +98,7 @@ dl_cet_ibt_enabled (void)
 	movl $" X86_STRINGIFY (ARCH_SHSTK_SHSTK) ", %esi\n\
 	movl $" X86_STRINGIFY (ARCH_SHSTK_ENABLE) ", %edi\n\
 	movl $" X86_STRINGIFY (__NR_arch_prctl) ", %eax\n\
-	syscall\n\
+	syscall_method\n\
 1:\n\
 	# Pass GL(dl_x86_feature_1) to _dl_cet_setup_features.\n\
 	movl %edx, %edi\n\
